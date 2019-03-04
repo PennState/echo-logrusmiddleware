@@ -4,12 +4,12 @@
 
 An adapter (middleware) to make the Golang [Echo web
 framework](https://github.com/labstack/echo) logging work with
-[logrus](https://github.com/Sirupsen/logrus), an excellent logging solution.
+[logrus](https://github.com/sirupsen/logrus), an excellent logging solution.
 
 ## Install
 
 ```
-$ go get github.com/sandalwing/echo-logrusmiddleware
+$ go get github.com/PennState/echo-logrusmiddleware
 ```
 
 ## Usage
@@ -18,9 +18,9 @@ $ go get github.com/sandalwing/echo-logrusmiddleware
 package main
 
 import (
-	"github.com/Sirupsen/logrus"
+	"github.com/sirupsen/logrus"
 	"github.com/labstack/echo"
-	"github.com/sandalwing/echo-logrusmiddleware"
+	elm "github.com/sandalwing/echo-logrusmiddleware"
 )
 
 func main() {
@@ -28,8 +28,8 @@ func main() {
 
 	// echo Logger interface friendly wrapper around logrus logger to use it
 	// for default echo logger
-	e.Logger = logrusmiddleware.Logger{logrus.StandardLogger()}
-	e.Use(logrusmiddleware.Hook())
+	e.Logger = elm.Logger{logrus.StandardLogger()}
+	e.Use(elm.Hook())
 
 	// do the rest of your echo setup, routes, listen on server, etc..
 }
