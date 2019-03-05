@@ -9,7 +9,7 @@ framework](https://github.com/labstack/echo) logging work with
 ## Install
 
 ```
-$ go get github.com/PennState/echo-logrusmiddleware
+$ go get github.com/pennstate/echo-logrusmiddleware
 ```
 
 ## Usage
@@ -20,7 +20,7 @@ package main
 import (
 	"github.com/sirupsen/logrus"
 	"github.com/labstack/echo"
-	elm "github.com/sandalwing/echo-logrusmiddleware"
+	elm "github.com/pennstate/echo-logrusmiddleware"
 )
 
 func main() {
