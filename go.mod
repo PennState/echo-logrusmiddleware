@@ -1,4 +1,4 @@
-module github.com/nabowler/echo-logrusmiddleware
+module github.com/pennstate/echo-logrusmiddleware
 
 go 1.12
 
