@@ -102,7 +102,8 @@ func logrusMiddlewareHandler(c echo.Context, next echo.HandlerFunc) error {
 	req := c.Request()
 	res := c.Response()
 	start := time.Now()
-	if err := next(c); err != nil {
+	var err error
+	if err = next(c); err != nil {
 		c.Error(err)
 	}
 	stop := time.Now()
@@ -127,6 +128,7 @@ func logrusMiddlewareHandler(c echo.Context, next echo.HandlerFunc) error {
 		"referer":       req.Referer(),
 		"user_agent":    req.UserAgent(),
 		"status":        res.Status,
+		"error":         err,
 		"latency":       strconv.FormatInt(stop.Sub(start).Nanoseconds()/1000, 10),
 		"latency_human": stop.Sub(start).String(),
 		"bytes_in":      bytesIn,
