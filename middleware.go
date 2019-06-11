@@ -1,6 +1,7 @@
 package logrusmiddleware
 
 import (
+	"fmt"
 	"io"
 	"strconv"
 	"time"
@@ -135,29 +136,57 @@ func logrusMiddlewareHandler(c echo.Context, next echo.HandlerFunc) error {
 	xb3spanid := req.Header.Get("x-b3-spanid")
 	xb3traceid := req.Header.Get("x-b3-traceid")
 
+	incomingHeaders := make(map[string][]string)
+	for k, v := range req.Header {
+		if v != nil {
+			var values []string
+			for i := range v {
+				values = append(values, fmt.Sprintf("redacted %d", i))
+			}
+			incomingHeaders[k] = values
+		}
+	}
+
+	outgoingHeaders := make(map[string][]string)
+	for k, v := range res.Header() {
+		if v != nil {
+			var values []string
+			for i, val := range v {
+				if val == "" {
+					values = append(values, fmt.Sprintf("empty %d", i))
+				} else {
+					values = append(values, fmt.Sprintf("redacted %d", i))
+				}
+			}
+			outgoingHeaders[k] = values
+		}
+	}
+
 	logrus.WithFields(map[string]interface{}{
-		"time_rfc3339":  time.Now().Format(time.RFC3339),
-		"remote_ip":     c.RealIP(),
-		"userId":        userID,
-		"host":          req.Host,
-		"uri":           req.RequestURI,
-		"method":        req.Method,
-		"path":          p,
-		"referer":       req.Referer(),
-		"user_agent":    req.UserAgent(),
-		"status":        res.Status,
-		"uniqueId":      uniqueID,
-		"context_id":    contextID,
-		"X-Request-ID":  contextID,
-		"x-request-id":  contextID,
-		"x-b3-sampled":  xb3sampled,
-		"x-b3-spanid":   xb3spanid,
-		"x-b3-traceid":  xb3traceid,
-		"error":         err,
-		"latency":       strconv.FormatInt(stop.Sub(start).Nanoseconds()/1000, 10),
-		"latency_human": stop.Sub(start).String(),
-		"bytes_in":      bytesIn,
-		"bytes_out":     strconv.FormatInt(res.Size, 10),
+		"time_rfc3339":     time.Now().Format(time.RFC3339),
+		"remote_ip":        c.RealIP(),
+		"userId":           userID,
+		"host":             req.Host,
+		"uri":              req.RequestURI,
+		"method":           req.Method,
+		"path":             p,
+		"referer":          req.Referer(),
+		"user_agent":       req.UserAgent(),
+		"status":           res.Status,
+		"uniqueId":         uniqueID,
+		"context_id":       contextID,
+		"X-Request-ID":     contextID,
+		"x-request-id":     contextID,
+		"x-b3-sampled":     xb3sampled,
+		"x-b3-spanid":      xb3spanid,
+		"x-b3-traceid":     xb3traceid,
+		"error":            err,
+		"latency":          strconv.FormatInt(stop.Sub(start).Nanoseconds()/1000, 10),
+		"latency_human":    stop.Sub(start).String(),
+		"bytes_in":         bytesIn,
+		"bytes_out":        strconv.FormatInt(res.Size, 10),
+		"incoming_headers": incomingHeaders,
+		"outgoing_headers": outgoingHeaders,
 	}).Info("Handled request")
 
 	return nil
