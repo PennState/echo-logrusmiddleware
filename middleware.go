@@ -131,6 +131,10 @@ func logrusMiddlewareHandler(c echo.Context, next echo.HandlerFunc) error {
 	uniqueID := req.Header.Get("UNIQUE_ID")
 	contextID := req.Header.Get("x-request-id")
 
+	xb3sampled := req.Header.Get("x-b3-sampled")
+	xb3spanid := req.Header.Get("x-b3-spanid")
+	xb3traceid := req.Header.Get("x-b3-traceid")
+
 	logrus.WithFields(map[string]interface{}{
 		"time_rfc3339":  time.Now().Format(time.RFC3339),
 		"remote_ip":     c.RealIP(),
@@ -144,6 +148,11 @@ func logrusMiddlewareHandler(c echo.Context, next echo.HandlerFunc) error {
 		"status":        res.Status,
 		"uniqueId":      uniqueID,
 		"context_id":    contextID,
+		"X-Request-ID":  contextID,
+		"x-request-id":  contextID,
+		"x-b3-sampled":  xb3sampled,
+		"x-b3-spanid":   xb3spanid,
+		"x-b3-traceid":  xb3traceid,
 		"error":         err,
 		"latency":       strconv.FormatInt(stop.Sub(start).Nanoseconds()/1000, 10),
 		"latency_human": stop.Sub(start).String(),
