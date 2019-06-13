@@ -135,8 +135,14 @@ func logrusMiddlewareHandler(c echo.Context, next echo.HandlerFunc) error {
 	xb3spanid := req.Header.Get("x-b3-spanid")
 	xb3traceid := req.Header.Get("x-b3-traceid")
 
+	xff := req.Header.Get("X-Forwarded-For")
+	if xff == "" {
+		xff = c.RealIP()
+	}
+
 	logrus.WithFields(map[string]interface{}{
 		"time_rfc3339":  time.Now().Format(time.RFC3339),
+		"remoteIP":      xff,
 		"remote_ip":     c.RealIP(),
 		"userId":        userID,
 		"host":          req.Host,
@@ -169,6 +175,7 @@ func logger(next echo.HandlerFunc) echo.HandlerFunc {
 	}
 }
 
+// Hook returns an echo.MiddlewareFunc that logs desired information using the logrus StandardLogger
 func Hook() echo.MiddlewareFunc {
 	return logger
 }
