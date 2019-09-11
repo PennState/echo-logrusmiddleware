@@ -50,7 +50,7 @@ func logrusMiddlewareHandler(c echo.Context, next echo.HandlerFunc) error {
 		xff = c.RealIP()
 	}
 
-	logrus.WithFields(map[string]interface{}{
+	entry := logrus.WithFields(map[string]interface{}{
 		"time_rfc3339":  time.Now().Format(time.RFC3339),
 		"remoteIP":      xff,
 		"remote_ip":     c.RealIP(),
@@ -69,12 +69,17 @@ func logrusMiddlewareHandler(c echo.Context, next echo.HandlerFunc) error {
 		"x-b3-sampled":  xb3sampled,
 		"x-b3-spanid":   xb3spanid,
 		"x-b3-traceid":  xb3traceid,
-		"error":         err,
 		"latency":       strconv.FormatInt(stop.Sub(start).Nanoseconds()/1000, 10),
 		"latency_human": stop.Sub(start).String(),
 		"bytes_in":      bytesIn,
 		"bytes_out":     strconv.FormatInt(res.Size, 10),
-	}).Info("Handled request")
+	})
+
+	if err != nil {
+		entry = entry.WithError(err)
+	}
+
+	entry.Info("Handled request")
 
 	return nil
 }
